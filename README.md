@@ -26,4 +26,4 @@ Include a screenshot or GIF of your web app in action.
 1. Clone the repository:
 
    ```bash
-   git clone https://rajesh-m98.github.io/Oibsip_level2_taskno3/OibSip_Lvl2-T-3
+   https://rajesh-m98.github.io/Oibsip_level2_taskno3/OibSip_Lvl2-T-3
