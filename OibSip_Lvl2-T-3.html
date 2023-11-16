@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToDo Web App</title>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      text-shadow: 2px 2px 1px rgb(255, 0, 0);
+      background-color: rgb(255, 198, 128);
+      height: 110px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #tasks {
+      background: transparent;
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    #todoForm table {
+      border: none;
+      background-color: rgb(255, 255, 255);
+      margin-left: 20px;
+      width: 300px;
+      text-align: center;
+    }
+
+    #todoForm input,
+    #todoForm textarea {
+      width: 240px;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 3px;
+      border: none;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 16px;
+      background-color: rgb(231, 231, 231);
+    }
+
+    #todoForm input:focus,
+    #todoForm textarea:focus {
+      outline: none;
+    }
+
+    #todoForm button {
+      width: 100px;
+      height: 40px;
+      font-weight: bold;
+      border: none;
+      border-radius: 25px;
+      background-color: rgb(255, 210, 210);
+      cursor: pointer;
+      transition: 0.6s;
+      margin-top: 10px;
+    }
+
+    #todoForm button:hover {
+      background-color: rgb(0, 132, 255);
+      color: white;
+      box-shadow: 3px 3px 3px black;
+    }
+
+    #todoForm th {
+      background: transparent;
+      font-size: 28px;
+    }
+
+    #app {
+      margin-top: 20px;
+      margin-left: 20px;
+    }
+
+    #app #pendingTasks th,
+    #app #completedTasks th {
+      border: 1px solid black;
+      padding: 4px;
+      border-radius: 25px;
+      width: 100px;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #app button {
+      cursor: pointer;
+      text-align: center;
+      background-color: rgb(0, 183, 255);
+      color: white;
+      border: none;
+      font-weight: bold;
+      width: 100px;
+      height: 30px;
+      font-size: 16px;
+      border-radius: 25px;
+    }
+
+    .pending {
+      background-color: #ffc;
+    }
+
+    .completed {
+      background-color: #d4f5d4;
+    }
+
+    #editForm {
+      display: none;
+      position: relative;
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      z-index: 1;
+      width: 500px;
+      margin-left: 300px;
+      margin-top: -200px;
+      text-align: center;
+    }
+
+    #editForm button {
+      width: auto;
+      padding: 5px 10px;
+      background-color: rgb(0, 183, 255);
+      color: white;
+      border: none;
+      font-weight: bold;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>TO-DO WEB APP</h1>
+  <div id="tasks">
+    <form id="todoForm">
+      <table cellspacing="20px">
+        <th>ADD TASK</th>
+        <tr>
+          <td><input type="text" id="title" placeholder="Title" required></td>
+        </tr>
+        <tr>
+          <td><textarea id="description" placeholder="Description" required></textarea></td>
+        </tr>
+        <tr>
+          <td><button type="button" onclick="addTask()">ADD</button></td>
+        </tr>
+      </table>
+    </form>
+
+    <div id="app">
+      <h3>Pending Tasks</h3>
+      <table id="pendingTasks" cellspacing="10px">
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </table>
+
+      <h3>Completed Tasks</h3>
+      <table id="completedTasks" cellspacing="10px">
+        <tr>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Delete</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Form -->
+  <div id="editForm">
+    <h3>Edit Task</h3>
+    <form id="editTaskForm">
+        <table cellspacing="20px">
+            <tr>
+                <td><label for="">Title</label></td>
+                <td><label for="">Description</label></td> 
+                <td rowspan="2"><button type="button" onclick="saveEditedTask()">Save</button></td>
+            </tr>
+            <tr>
+                <td><input type="text" id="editTitle" required></td>
+                <td><textarea id="editDescription" required></textarea></td>
+            </tr>
+        </table> 
+    </form>
+  </div>
+
+  <script>
+    function addTask() {
+      const titleInput = document.getElementById('title');
+      const descriptionInput = document.getElementById('description');
+
+      const title = titleInput.value;
+      const description = descriptionInput.value;
+
+      if (title && description) {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${title}</td>
+          <td>${description}</td>
+          <td><button onclick="editTask(this)">Edit</button></td>
+          <td><button onclick="deleteTask(this, 'pending')">Delete</button></td>
+        `;
+
+        document.getElementById('pendingTasks').appendChild(newRow);
+
+        // Clear the input fields
+        titleInput.value = '';
+        descriptionInput.value = '';
+      }
+    }
+
+    function editTask(button) {
+      const row = button.parentNode.parentNode;
+      const title = row.getElementsByTagName('td')[0].innerText;
+      const description = row.getElementsByTagName('td')[1].innerText;
+
+      // Set values in the edit form
+      document.getElementById('editTitle').value = title;
+      document.getElementById('editDescription').value = description;
+
+      // Show the edit form
+      document.getElementById('editForm').style.display = 'block';
+
+      // Save the reference to the edited row and type
+      window.editedRow = row;
+      window.editedType = 'pending';
+    }
+
+    function deleteTask(button, type) {
+      const row = button.parentNode.parentNode;
+      row.parentNode.removeChild(row);
+
+      if (type === 'pending') {
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+          <td>${row.getElementsByTagName('td')[0].innerText}</td>
+          <td>${row.getElementsByTagName('td')[1].innerText}</td>
+          <td><button onclick="completeTask(this)">Complete</button></td>
+          <td><button onclick="deleteTask(this, 'completed')">Delete</button></td>
+        `;
+
+        document.getElementById('completedTasks').appendChild(newRow);
+      }
+    }
+
+    function completeTask(button) {
+      const row = button.parentNode.parentNode;
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>${row.getElementsByTagName('td')[0].innerText}</td>
+        <td>${row.getElementsByTagName('td')[1].innerText}</td>
+        <td><button onclick="deleteTask(this, 'completed')">Delete</button></td>
+      `;
+
+      document.getElementById('completedTasks').appendChild(newRow);
+      row.parentNode.removeChild(row);
+    }
+
+    function saveEditedTask() {
+      const editedTitle = document.getElementById('editTitle').value;
+      const editedDescription = document.getElementById('editDescription').value;
+
+      if (editedTitle && editedDescription && window.editedRow && window.editedType) {
+        // Update the edited row with new values
+        window.editedRow.getElementsByTagName('td')[0].innerText = editedTitle;
+        window.editedRow.getElementsByTagName('td')[1].innerText = editedDescription;
+
+        // Hide the edit form
+        document.getElementById('editForm').style.display = 'none';
+
+        // Clear the reference to the edited row and type
+        window.editedRow = null;
+        window.editedType = null;
+      }}
+    </script>
+</body>
+</html>
